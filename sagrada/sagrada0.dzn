@@ -1,0 +1,10 @@
+% TEST CASE 0: there are fewer dice needed to fill in the entire board.
+
+BOARD_SIZE_X = 2; % number of rows
+BOARD_SIZE_Y = 3; % number of columns
+
+VALUES = { ONE, TWO, THREE, FOUR, FIVE, SIX };
+COLOURS = { RED, YELLOW, GREEN, BLUE, PURPLE };
+
+dice_values  = [ TWO, TWO, TWO, SIX ];
+dice_colours = [ RED, RED, RED, BLUE ];
