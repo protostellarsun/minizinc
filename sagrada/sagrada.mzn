@@ -13,6 +13,8 @@ set of int: cols  = 1..BOARD_SIZE_Y;
 set of int: cols0 = 0..BOARD_SIZE_Y;
 
 % TODO: add board restrictions.
+array[rows, cols] of 0..card(VALUES): value_restrictions;
+array[rows, cols] of 0..card(COLOURS): colour_restrictions;
 
 % TODO: add goals.
 
@@ -53,6 +55,14 @@ constraint forall(r in rows) (
 );
 constraint forall(c in cols) (
   forall(r in 1..BOARD_SIZE_X-1) (areDistinct(r, c, r+1, c))
+);
+
+% Board config restrictions.
+constraint forall(r in rows) (
+  forall(c in cols) (
+    (value_restrictions[r,c] > 0 -> value_restrictions[r,c] = dice_values[board_content[r,c]]) /\
+    (colour_restrictions[r,c] > 0 -> colour_restrictions[r,c] = dice_colours[board_content[r,c]])
+  )
 );
 
 % solve satisfy;
