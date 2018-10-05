@@ -12,11 +12,13 @@ set of int: rows0 = 0..BOARD_SIZE_X;
 set of int: cols  = 1..BOARD_SIZE_Y;
 set of int: cols0 = 0..BOARD_SIZE_Y;
 
-% TODO: add board restrictions.
 array[rows, cols] of 0..card(VALUES): value_restrictions;
 array[rows, cols] of 0..card(COLOURS): colour_restrictions;
 
 % TODO: add goals.
+
+COLOURS: private_goal;
+
 
 constraint assert(length(dice_colours) = length(dice_values), "Error: dismatched number of dice in the game.");
 
@@ -65,6 +67,9 @@ constraint forall(r in rows) (
   )
 );
 
+var int: private_obj_total = sum(r in rows, c in cols) (if dice_colours[board_content[r,c]] = private_goal then dice_values[board_content[r,c]] else 0 endif);
+
 % solve satisfy;
-var int: total_dots_on_board = sum([if board_content[r,c] > EMPTY then dice_values[board_content[r,c]] else 0 endif | r in rows, c in cols]);
-solve maximize total_dots_on_board;
+%var int: total_dots_on_board = sum([if board_content[r,c] > EMPTY then dice_values[board_content[r,c]] else 0 endif | r in rows, c in cols]);
+
+solve maximize private_obj_total;
