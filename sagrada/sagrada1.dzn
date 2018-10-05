@@ -1,0 +1,8 @@
+BOARD_SIZE_X = 4; % number of rows
+BOARD_SIZE_Y = 5; % number of columns
+
+VALUES = { ONE, TWO, THREE, FOUR, FIVE, SIX };
+COLOURS = { RED, YELLOW, GREEN, BLUE, PURPLE };
+
+dice_values  = [ ONE, TWO, THREE, FOUR, FIVE, SIX, ONE,    TWO,   THREE, FOUR, FIVE, SIX, ONE,    TWO,   THREE, FOUR, FIVE, SIX, FOUR, FIVE];
+dice_colours = [ RED, RED, RED,   RED,  RED,  RED, YELLOW, GREEN, GREEN, BLUE, BLUE, PURPLE, RED,  RED, YELLOW, GREEN, GREEN, BLUE, BLUE, BLUE, ];

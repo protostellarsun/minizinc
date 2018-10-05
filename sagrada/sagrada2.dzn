@@ -1,0 +1,10 @@
+% TEST CASE 2: more dice available than number of cells on the board.
+
+BOARD_SIZE_X = 2; % number of rows
+BOARD_SIZE_Y = 3; % number of columns
+
+VALUES = { ONE, TWO, THREE, FOUR, FIVE, SIX };
+COLOURS = { RED, YELLOW, GREEN, BLUE, PURPLE };
+
+dice_values  = [ THREE, TWO, TWO, TWO,  SIX,  TWO,   THREE ];
+dice_colours = [ RED,   RED, RED, BLUE, BLUE, GREEN, YELLOW ];
