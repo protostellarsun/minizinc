@@ -12,11 +12,15 @@ set of int: rows0 = 0..BOARD_SIZE_X;
 set of int: cols  = 1..BOARD_SIZE_Y;
 set of int: cols0 = 0..BOARD_SIZE_Y;
 
-% TODO: add board restrictions.
 array[rows, cols] of 0..card(VALUES): value_restrictions;
 array[rows, cols] of 0..card(COLOURS): colour_restrictions;
 
-% TODO: add goals.
+COLOURS: private_goal;
+set of PUBLIC_GOAL_CHOICES: public_goals;
+
+enum PUBLIC_GOAL_CHOICES = {DISTINCT_COLOUR_IN_A_ROW, DISTINCT_COLOUR_IN_A_COL, PAIR_OF_ONE_TWO, PAIR_OF_THREE_FOUR};
+array[1..card(PUBLIC_GOAL_CHOICES)] of 1..5: PUBLIC_GOAL_POINTS = [5, 4, 2, 2];
+
 
 constraint assert(length(dice_colours) = length(dice_values), "Error: dismatched number of dice in the game.");
 
@@ -65,6 +69,35 @@ constraint forall(r in rows) (
   )
 );
 
-% solve satisfy;
-var int: total_dots_on_board = sum([if board_content[r,c] > EMPTY then dice_values[board_content[r,c]] else 0 endif | r in rows, c in cols]);
-solve maximize total_dots_on_board;
+var 1..6*BOARD_SIZE_X*BOARD_SIZE_Y: private_obj;
+
+constraint private_obj = sum(r in rows, c in cols) (if dice_colours[board_content[r,c]] = private_goal then dice_values[board_content[r,c]] else 0 endif);
+
+var int: empty_cell_penalty = - sum(r in rows, c in cols) (board_content[r,c] = EMPTY);
+
+var int: public_obj;
+
+predicate alldifferent(array[int] of var int: arr) = forall(i, j in index_set(arr)) (arr[i] != arr[j]);
+
+predicate evaluate_public_obj(var int: obj, array[int, int] of var dice0: board, set of PUBLIC_GOAL_CHOICES: goals) = (
+ let {
+   var int: cond1 = if DISTINCT_COLOUR_IN_A_ROW in PUBLIC_GOAL_CHOICES then sum(r in rows) (alldifferent([dice_colours[board[r,c]] | c in cols])) else 0 endif;
+   var int: cond2 = if DISTINCT_COLOUR_IN_A_COL in PUBLIC_GOAL_CHOICES then sum(c in cols) (alldifferent([dice_colours[board[r,c]] | r in rows])) else 0 endif;
+   var int: cond3 = if PAIR_OF_ONE_TWO in PUBLIC_GOAL_CHOICES then min(sum(r in rows, c in cols) (dice_values[board[r,c]] = 1), sum(r in rows, c in cols) (dice_values[board[r,c]] = 2)) else 0 endif;
+   var int: cond4 = if PAIR_OF_THREE_FOUR in PUBLIC_GOAL_CHOICES then min(sum(r in rows, c in cols) (dice_values[board[r,c]] = 3), sum(r in rows, c in cols) (dice_values[board[r,c]] = 4)) else 0 endif;
+ }
+ in
+     cond1 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_ROW]
+   + cond2 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_COL]
+   + cond3 * PUBLIC_GOAL_POINTS[PAIR_OF_ONE_TWO]
+   + cond4 * PUBLIC_GOAL_POINTS[PAIR_OF_THREE_FOUR]
+   = obj
+);
+
+constraint evaluate_public_obj(public_obj, board_content, public_goals);
+
+var int: total_obj;
+constraint total_obj = private_obj + public_obj + empty_cell_penalty;
+
+solve maximize total_obj;
+

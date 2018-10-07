@@ -1,8 +1,31 @@
+% TEST CASE : exactly right number of dice to fill in the entire board.
+
 BOARD_SIZE_X = 4; % number of rows
 BOARD_SIZE_Y = 5; % number of columns
 
 VALUES = { ONE, TWO, THREE, FOUR, FIVE, SIX };
 COLOURS = { RED, YELLOW, GREEN, BLUE, PURPLE };
 
-dice_values  = [ ONE, TWO, THREE, FOUR, FIVE, SIX, ONE,    TWO,   THREE, FOUR, FIVE, SIX, ONE,    TWO,   THREE, FOUR, FIVE, SIX, FOUR, FIVE];
-dice_colours = [ RED, RED, RED,   RED,  RED,  RED, YELLOW, GREEN, GREEN, BLUE, BLUE, PURPLE, RED,  RED, YELLOW, GREEN, GREEN, BLUE, BLUE, BLUE, ];
+dice_values  = [ ONE,   ONE,   ONE,   ONE,   ONE,
+                 ONE,   TWO,   TWO,   TWO,   THREE,
+                 THREE, THREE, THREE, THREE, THREE,
+                 FOUR,  FOUR,  FIVE,  FIVE,  SIX];
+
+dice_colours = [ RED,   BLUE,   RED,    YELLOW, PURPLE,
+                 GREEN, RED,    YELLOW, YELLOW, BLUE,
+                 RED,   PURPLE, PURPLE, BLUE,   YELLOW,
+                 BLUE,  GREEN,  GREEN,  RED,    YELLOW, ];
+
+value_restrictions = [| 1, 0, 6, 0, 0,
+                      | 0, 1, 0, 2, 0,
+                      | 0, 0, 1, 0, 2,
+                      | 0, 0, 0, 1, 0|];
+
+colour_restrictions = [| 0, 0, 0, 0, BLUE,
+                       | 0, 0, 0, 0, 0,
+                       | 0, 0, 0, 0, 0,
+                       | BLUE, 0, 0, 0, 0|];
+
+private_goal = RED;
+
+public_goals = {};
