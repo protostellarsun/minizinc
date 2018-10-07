@@ -15,8 +15,6 @@ set of int: cols0 = 0..BOARD_SIZE_Y;
 array[rows, cols] of 0..card(VALUES): value_restrictions;
 array[rows, cols] of 0..card(COLOURS): colour_restrictions;
 
-% TODO: add goals.
-
 COLOURS: private_goal;
 set of PUBLIC_GOAL_CHOICES: public_goals;
 
@@ -82,9 +80,18 @@ var int: public_obj;
 predicate alldifferent(array[int] of var int: arr) = forall(i, j in index_set(arr)) (arr[i] != arr[j]);
 
 predicate evaluate_public_obj(var int: obj, array[int, int] of var dice0: board, set of PUBLIC_GOAL_CHOICES: goals) = (
- let { var int: po1 = if DISTINCT_COLOUR_IN_A_ROW in PUBLIC_GOAL_CHOICES then sum(r in rows) (alldifferent([board[r,c] | c in cols])) else 0 endif }
+ let {
+   var int: cond1 = if DISTINCT_COLOUR_IN_A_ROW in PUBLIC_GOAL_CHOICES then sum(r in rows) (alldifferent([dice_colours[board[r,c]] | c in cols])) else 0 endif;
+   var int: cond2 = if DISTINCT_COLOUR_IN_A_COL in PUBLIC_GOAL_CHOICES then sum(c in cols) (alldifferent([dice_colours[board[r,c]] | r in rows])) else 0 endif;
+   var int: cond3 = if PAIR_OF_ONE_TWO in PUBLIC_GOAL_CHOICES then min(sum(r in rows, c in cols) (dice_values[board[r,c]] = 1), sum(r in rows, c in cols) (dice_values[board[r,c]] = 2)) else 0 endif;
+   var int: cond4 = if PAIR_OF_THREE_FOUR in PUBLIC_GOAL_CHOICES then min(sum(r in rows, c in cols) (dice_values[board[r,c]] = 3), sum(r in rows, c in cols) (dice_values[board[r,c]] = 4)) else 0 endif;
+ }
  in
- po1 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_ROW] = obj
+     cond1 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_ROW]
+   + cond2 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_COL]
+   + cond3 * PUBLIC_GOAL_POINTS[PAIR_OF_ONE_TWO]
+   + cond4 * PUBLIC_GOAL_POINTS[PAIR_OF_THREE_FOUR]
+   = obj
 );
 
 constraint evaluate_public_obj(public_obj, board_content, public_goals);
