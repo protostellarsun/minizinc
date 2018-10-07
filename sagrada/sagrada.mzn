@@ -1,6 +1,3 @@
-include "alldifferent.mzn";
-include "alldifferent_except_0.mzn";
-
 int: BOARD_SIZE_X;
 int: BOARD_SIZE_Y;
 
@@ -48,6 +45,7 @@ constraint forall(d in dice) (
 );
 
 % No repetition of dice on the board.
+include "alldifferent_except_0.mzn";
 constraint alldifferent_except_0([board_content[r,c] | r in rows, c in cols]);
 
 % Adjacency conditions.
@@ -80,6 +78,8 @@ constraint private_obj = sum(r in rows, c in cols) (if dice_colours[board_conten
 var int: empty_cell_penalty = - sum(r in rows, c in cols) (board_content[r,c] = EMPTY);
 
 var int: public_obj;
+
+predicate alldifferent(array[int] of var int: arr) = forall(i, j in index_set(arr)) (arr[i] != arr[j]);
 
 predicate evaluate_public_obj(var int: obj, array[int, int] of var dice0: board, set of PUBLIC_GOAL_CHOICES: goals) = (
  let { var int: po1 = if DISTINCT_COLOUR_IN_A_ROW in PUBLIC_GOAL_CHOICES then sum(r in rows) (alldifferent([board[r,c] | c in cols])) else 0 endif }
