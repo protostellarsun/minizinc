@@ -1,3 +1,6 @@
+include "alldifferent.mzn";
+include "alldifferent_except_0.mzn";
+
 int: BOARD_SIZE_X;
 int: BOARD_SIZE_Y;
 
@@ -18,6 +21,10 @@ array[rows, cols] of 0..card(COLOURS): colour_restrictions;
 % TODO: add goals.
 
 COLOURS: private_goal;
+set of PUBLIC_GOAL_CHOICES: public_goals;
+
+enum PUBLIC_GOAL_CHOICES = {DISTINCT_COLOUR_IN_A_ROW, DISTINCT_COLOUR_IN_A_COL, PAIR_OF_ONE_TWO, PAIR_OF_THREE_FOUR};
+array[1..card(PUBLIC_GOAL_CHOICES)] of 1..5: PUBLIC_GOAL_POINTS = [5, 4, 2, 2];
 
 
 constraint assert(length(dice_colours) = length(dice_values), "Error: dismatched number of dice in the game.");
@@ -41,7 +48,6 @@ constraint forall(d in dice) (
 );
 
 % No repetition of dice on the board.
-include "alldifferent_except_0.mzn";
 constraint alldifferent_except_0([board_content[r,c] | r in rows, c in cols]);
 
 % Adjacency conditions.
@@ -67,9 +73,24 @@ constraint forall(r in rows) (
   )
 );
 
-var int: private_obj_total = sum(r in rows, c in cols) (if dice_colours[board_content[r,c]] = private_goal then dice_values[board_content[r,c]] else 0 endif);
+var 1..6*BOARD_SIZE_X*BOARD_SIZE_Y: private_obj;
 
-% solve satisfy;
-%var int: total_dots_on_board = sum([if board_content[r,c] > EMPTY then dice_values[board_content[r,c]] else 0 endif | r in rows, c in cols]);
+constraint private_obj = sum(r in rows, c in cols) (if dice_colours[board_content[r,c]] = private_goal then dice_values[board_content[r,c]] else 0 endif);
 
-solve maximize private_obj_total;
+var int: empty_cell_penalty = - sum(r in rows, c in cols) (board_content[r,c] = EMPTY);
+
+var int: public_obj;
+
+predicate evaluate_public_obj(var int: obj, array[int, int] of var dice0: board, set of PUBLIC_GOAL_CHOICES: goals) = (
+ let { var int: po1 = if DISTINCT_COLOUR_IN_A_ROW in PUBLIC_GOAL_CHOICES then sum(r in rows) (alldifferent([board[r,c] | c in cols])) else 0 endif }
+ in
+ po1 * PUBLIC_GOAL_POINTS[DISTINCT_COLOUR_IN_A_ROW] = obj
+);
+
+constraint evaluate_public_obj(public_obj, board_content, public_goals);
+
+var int: total_obj;
+constraint total_obj = private_obj + public_obj + empty_cell_penalty;
+
+solve maximize total_obj;
+
