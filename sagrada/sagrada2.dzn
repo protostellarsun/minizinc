@@ -6,5 +6,15 @@ BOARD_SIZE_Y = 3; % number of columns
 VALUES = { ONE, TWO, THREE, FOUR, FIVE, SIX };
 COLOURS = { RED, YELLOW, GREEN, BLUE, PURPLE };
 
-dice_values  = [ THREE, TWO, TWO, TWO,  SIX,  TWO,   THREE ];
-dice_colours = [ RED,   RED, RED, BLUE, BLUE, GREEN, YELLOW ];
+dice_values  = [ THREE, TWO, TWO, TWO,  SIX,  TWO,   ONE, ONE ];
+dice_colours = [ RED,   RED, RED, BLUE, BLUE, GREEN, YELLOW, BLUE ];
+
+value_restrictions =  [| 0, 0, 0,
+                       | 0, 0, 0|];
+
+colour_restrictions = [| 0, 0, 0,
+                       | 0, 0, 0|];
+
+private_goal = RED;
+
+public_goals = { DISTINCT_COLOUR_IN_A_COL };
