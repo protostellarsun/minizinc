@@ -101,3 +101,7 @@ constraint total_obj = private_obj + public_obj + empty_cell_penalty;
 
 solve maximize total_obj;
 
+output [
+    if fix(board_content[r,c]) > EMPTY then "[\(dice_colours[board_content[r,c]]) \(dice_values[board_content[r,c]])],  " else "[  ],   " endif
+ ++ if c = BOARD_SIZE_Y then "\n" else "" endif
+| r in rows, c in cols]
